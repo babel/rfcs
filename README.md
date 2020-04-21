@@ -16,8 +16,8 @@ consistent and controlled path for new features to enter the project.
 You need to follow this process if you intend to make "substantial" changes to any part of Babel.
 Some examples that would benefit from an RFC are:
 
-- A new feature that creates new API surface area, and would require a feature flag if introduced.
-- The removal of features that already shipped as part of the release channel.
+- A new feature that creates new API surface area, and would require a config option if introduced.
+- A breaking change or the removal of features that already shipped.
 - The introduction of new idiomatic usage or conventions, even if they do not include code changes to Babel itself.
 
 The RFC process is a great opportunity to get more eyeballs on your proposal before it becomes released. Quite often, even proposals that seem "obvious" can be significantly improved once a wider group of interested people have a chance to weigh in.
@@ -46,8 +46,6 @@ In short, to get a major feature added, one usually first gets the RFC merged in
 ## The RFC Lifecycle
 
 Once an RFC is merged into this repo, then the authors may implement it and submit a pull request to the appropriate Babel repo without opening an issue. Note that the implementation still needs to be reviewed separate from the RFC, so you should expect more feedback and iteration. 
-
-If the RFC authors choose not to implement the RFC, then the RFC may be implemented by anyone. There is no guarantee that RFCs not implemented by their author will be implemented by the Babel team.
 
 Changes to the design during implementation should be reflected by updating the related RFC. The goal is to have RFCs to look back on to understand the motivation and design of shipped Babel features.
 
