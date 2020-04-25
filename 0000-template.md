@@ -1,8 +1,10 @@
-- Repo: (the repo it will be implemented in, e.g. [`babel/babel`](https://github.com/babel/babel))
-- Start Date: (fill me in with today's date, YYYY-MM-DD)
-- RFC PR: (leave this empty, to be filled in later)
-- Related Issues: (if relevant)
-- Authors: (the names of everyone contributing to this RFC)
+- Repo: <!-- the repo it will be implemented in, e.g. `babel/babel` -->
+- Start Date: <!-- fill me in with today's date, YYYY-MM-DD -->
+- RFC PR: <!-- leave this empty, to be filled in later -->
+- Related Issues: <!-- if relevant -->
+- Authors: <!-- the names of everyone contributing to this RFC -->
+- Champion: <!-- the name of a core team member that will present this RFC to the team. You can leave this empty if you haven't found it yet  -->
+- Implementors: <!-- the names of everyone who will work on the PR. you can leave this empty if you would like someone else to work on it -->
 
 # Summary
 
