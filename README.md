@@ -33,7 +33,7 @@ Some changes do not require an RFC:
 In short, to get a major feature added, one usually first gets the RFC merged into the RFC repo as a markdown file. At that point the RFC is 'active' and may be implemented with the goal of eventual inclusion into Babel.
 
 1. [Fork](https://github.com/babel/rfcs/fork) the RFC repo.
-1. Copy `0000-template.md` to `text/0000-my-feature.md` (where 'my-feature' is descriptive. Don't assign an RFC number yet).
+1. Copy `0000-template.md` to `rfcs/0000-my-feature.md` (where 'my-feature' is descriptive. Don't assign an RFC number yet).
 1. Fill in the RFC. Put care into the details: RFCs that do not present convincing motivation, demonstrate understanding of the impact of the design, or are disingenuous about the drawbacks or alternatives tend to be poorly-received.
 1. Submit a pull request. As a pull request the RFC will receive design feedback from the larger community, and the author should be prepared to revise it in response.
 1. Build consensus and integrate feedback. RFCs that have broad support are much more likely to make progress than those that don't receive any comments.
