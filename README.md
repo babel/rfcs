@@ -38,7 +38,7 @@ In short, to get a major feature added, one usually first gets the RFC merged in
 1. Submit a pull request. As a pull request the RFC will receive design feedback from the larger community, and the author should be prepared to revise it in response.
 1. Build consensus and integrate feedback. RFCs that have broad support are much more likely to make progress than those that don't receive any comments.
 1. Eventually, the team will decide whether the RFC is a candidate for inclusion.
-1. RFCs that are candidates for inclusion will enter a "final comment period" lasting one week. The beginning of this period will be signaled with a comment and tag on the RFCs pull request. Upon request of a Babel core team member, this period can be extended by one additional week.
+1. RFCs that are candidates for inclusion will enter a "final comment period" lasting one week. The beginning of this period will be signaled with a comment and tag on the RFCs pull request. Upon request of a Babel core team member, this period can be extended by an additional week.
 1. An RFC can be modified based upon feedback from the team and community. Significant modifications may trigger a new final comment period.
 1. An RFC may be rejected by the team after public discussion has settled and comments have been made summarizing the rationale for rejection. A member of the team should then close the RFCs associated pull request.
 1. An RFC may be accepted at the close of its final comment period. A team member will merge the RFCs associated pull request, at which point the RFC will become 'active'.
@@ -48,8 +48,8 @@ In short, to get a major feature added, one usually first gets the RFC merged in
 
 Once an RFC is merged into this repo, then the authors may implement it and submit a pull request to the appropriate Babel repo without opening an issue. Note that the implementation still needs to be reviewed separate from the RFC, so you should expect more feedback and iteration. 
 
-Changes to the design during implementation should be reflected by updating the related RFC with new PRs. The goal is to have RFCs to look back on to understand the motivation and design of shipped Babel features.
-If the person wriring the RFC is not the same person implementing it, we expect them to actively collaborate. If needed, this communication can be mediated by a team member.
+Changes to the design during implementation should be reflected by updating the related RFC with new PRs. The goal of having RFCs is to have something to look back upon to understand the motivation and design of shipped features/changes.
+If the person writing the RFC is not the same person implementing it, we expect them to actively collaborate. If needed, this communication can be mediated by a team member.
 
 ## Implementing an RFC
 
