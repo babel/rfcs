@@ -1,7 +1,7 @@
 - Repo: `babel/babel`
 - Start Date: 2020-04-25
 - RFC PR: <!-- leave this empty, to be filled in later -->
-- Related Issues: [babel/babel#10008](https://github.com/babel/babel/issues/10008)
+- Related Issues: 
 - Authors: [@nicolo-ribaudo](https://github.com/nicolo-ribaudo) 
 - Champion: [@nicolo-ribaudo](https://github.com/nicolo-ribaudo) 
 - Implementors: <!-- the names of everyone who will work on the PR. you can leave this empty if you would like someone else to work on it -->
@@ -248,6 +248,7 @@ When we will finally remove the options from `@babel/preset-env`, if they are st
 ## Related Discussions
 
 - [babel/babel#10008](https://github.com/babel/babel/issues/10008), where the "top-level targets" idea first came out.
+- Docs of [`babel-polyfills`](https://github.com/babel/babel-polyfills/blob/master/docs/usage.md#targets-ignorebrowserslistconfig-configpath-debug), where I had to duplicate the Browserslist-related options in all the plugins.
 - [2020/04/14](https://github.com/babel/notes/blob/master/2020/04-15.md) and [2020/04/02](https://github.com/babel/notes/blob/master/2020/04-02.md) meeting notes, the first times we started thinking about this idea.
 
 <!--
