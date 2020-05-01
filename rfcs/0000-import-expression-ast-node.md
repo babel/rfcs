@@ -99,18 +99,27 @@ export default {
 A plugin can also support both Babel 7 and Babel 8.
 ```js
 // Babel 8
-export default {
-  name: "my-plugin",
-  visitor: {
-    ImportExpression({ node }) {
-      const source = node.source;
-    },
-    // Compatibility for Babel 7
-    CallExpression({ node }) {
-      if (node.callee.type === "Import") {
-        const source = node.arguments[0];
+export default function(api, { types: t }) {
+  let visitor = {};  
+  if (t.ImportExpression) {
+    visitor = {
+      ImportExpression({ node }) {
+        const source = node.source;
       }
     }
+  } else {
+    // Compatibility for Babel 7
+    visitor = {
+      CallExpression({ node }) {
+        if (node.callee.type === "Import") {
+          const source = node.arguments[0];
+        }
+      }
+    }
+  }
+  return {
+    name: "my-plugin",
+    visitor,
   }
 }
 ```
