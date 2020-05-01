@@ -8,7 +8,7 @@
 
 # Summary
 
-This RFC proposes to change the AST shape of dynamic import `import(moduleName)` in ES2020. A new `ImportExpression` AST node is introduced.
+This RFC proposes to change the AST shape of dynamic import `import(moduleName)` in ES2020 by introducing a new `ImportExpression` node.
 
 # Motivation
 
@@ -133,7 +133,7 @@ const t = require("@babel/types");
 t.ImportExpression(t.StringLiteral("foo"));
 ```
 
-Note that `@babel/types` does not currently validate the number of arguments when constructing `import()` AST nodes via `t.CallExpression`. The `t.ImportExpression` will throw if more than one arguments are passed.
+Note that `@babel/types` does not currently validate the number of arguments when constructing `import()` AST nodes via `t.CallExpression`. Calling `t.ImportExpression` with more than one argument will throw.
 
 
 ## `module-attributes` proposal support
@@ -155,7 +155,7 @@ We also proposed this approach to ESTree: https://github.com/estree/estree/pull/
 
 ## Downstream cost
 
-As a breaking change of the AST shapes, it will impact every babel plugins if they are operating on `import()`. For plugins that intends to support both Babel 7 and Babel 8, extra code has to be implemented.
+As with any breaking change to the AST shape, any Babel plugin operating on `import()` will be impacted. For plugins that intend to support both Babel 7 and Babel 8, extra code will be needed.
 
 Introducing a new `ImportExpression` will fail the plugin since it will never be matched without any code modification. Ideally it should be captured by the tests when plugin authors are testing Babel 8 support.
 
@@ -175,16 +175,16 @@ We can stay with the current situation and use `arguments[1]` to capture module 
 
 # Adoption strategy
 
-We can ship this AST change behind an `BABEL_PARSER_8_BREAKING` env flag in 7.x and encourage downstream projects to test against this feature. In babel 8 we will opt in to this change and remove this flag.
+We can ship this AST change behind a `BABEL_PARSER_8_BREAKING` environment flag in 7.x and encourage downstream projects to test against this feature. In Babel 8 we will opt-in to this change and remove this flag.
 
-In `@babel/types` we can preserve the unused `t.Import` constructor in Babel 8 but instead only throws "`t.ImportExpression` should be used when constructing `import()`". 
+In `@babel/types` we can preserve the (now) unused `t.Import` constructor in Babel 8 and instruct the user: "`t.ImportExpression` should be used when constructing `import()`". 
 
-I have also talked to @devongovett (`parcel`) and @ljharb (`babel-plugin-dynamic-import-node`). Their feedbacks are positive. (If you know anyone who is interested at this change, please comment and I will reach out)
+Both @devongovett (`parcel`) and @ljharb (`babel-plugin-dynamic-import-node`) have expressed positive feedback to this proposal. (If you know anyone who is interested at this change, please comment and I will reach out)
 
 
 # How we teach this
 
-We can add migration solution on the babel 8 release notes. We also encourage plugin authors to test agains `BABEL_PARSER_8_BREAKING` up on next v7 minor releases.
+We can add migration instructions to the Babel 8 release notes, and also ensure plugin authors add `BABEL_PARSER_8_BREAKING` tests to their Babel 7-supporting versions.
 
 # Open questions
 
