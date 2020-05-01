@@ -29,7 +29,7 @@ Currently dynamic import is parsed as a `CallExpression`, whose `callee` is a ps
 }
 ```
 
-It imposes an incorrect mental model on developers, who may then think of `import()` as a function call. What's more, extending such an AST shape to support stage-1 [module attributes](https://github.com/tc39/proposal-module-attributes) (`import(moduleName, attributes)`) will be awkward if we model `argumets[1]` as the `attributes`. The `arguments[0]` and `arguments[1]` shares the same semantics in AST but it is not the case in module attributes.
+It encourages an incorrect mental model, as developers who may think of `import()` as a function call. It is also problematic when we extend the current AST shape to support stage-1 [module attributes](https://github.com/tc39/proposal-module-attributes) (`import(moduleName, attributes)`) since the arguments (`moduleName` and `attributes` respectively) share the same semantics in the AST.
 
 # Detailed design
 
