@@ -29,7 +29,7 @@ Currently dynamic import is parsed as a `CallExpression`, whose `callee` is a ps
 }
 ```
 
-It encourages an incorrect mental model, as developers who may think of `import()` as a function call. It is also problematic when we extend the current AST shape to support stage-1 [module attributes](https://github.com/tc39/proposal-module-attributes) (`import(moduleName, attributes)`) since the arguments (`moduleName` and `attributes` respectively) share the same semantics in the AST.
+It encourages an incorrect mental model, as developers may think of `import()` as a function call. It is also problematic when we extend the current AST shape to support stage-1 [module attributes](https://github.com/tc39/proposal-module-attributes) (`import(moduleName, attributes)`) since the arguments (`moduleName` and `attributes` respectively) share the same semantics in the AST.
 
 # Detailed design
 
@@ -96,12 +96,12 @@ export default {
 }
 ```
 
-A plugin can also support both Babel 7 and Babel 8.
+A plugin can also support both Babel 7 and Babel 8 by checking if `ImportExpression` exists in `@babel/types`.
 ```js
-// Babel 8
 export default function(api, { types: t }) {
   let visitor = {};  
   if (t.ImportExpression) {
+    // Babel 8
     visitor = {
       ImportExpression({ node }) {
         const source = node.source;
@@ -176,11 +176,11 @@ The parser will see extra code in order to parse a new node type. But it should 
 
 ## Stay with the current situation
 
-We can stay with the current situation and use `arguments[1]` to capture module attributes. This does not introduce any breaking changes. Since `import()` was accepted in ES2020, in the future it will become more difficult to consider any changes to existing AST shapes.
+We can stay with the current situation and use `arguments[1]` to capture module attributes. This does not introduce any breaking changes. Since `import()` was accepted in ES2020, in the future it will become more difficult to introduce any changes to existing AST shapes.
 
 ## Add a virtual type `ImportExpression`
 
-`@babel/types` support virtual types as a shortcut when visiting certain AST nodes. e.g., if we add a new virtual type `ImportExpression` to `CallExpression[callee=Import]`, plugin authors can use `ImportExpression` to match the underhood `CallExpression` node. This approach simplifies the AST node matching but it still contains confusing `arguments` property since it is still modeled as a `CallExpression`.
+`@babel/types` supports virtual types as a shortcut when visiting certain AST nodes. e.g., if we add a new virtual type `ImportExpression` to `CallExpression[callee=Import]`, plugin authors can use `ImportExpression` to match the underhood `CallExpression` node. This approach simplifies the AST node matching but it still contains confusing `arguments` property since the matched node is still a `CallExpression`.
 
 # Adoption strategy
 
