@@ -133,7 +133,7 @@ const t = require("@babel/types");
 t.ImportExpression(t.StringLiteral("foo"));
 ```
 
-Note that `@babel/types` does not currently validate the number of arguments when construting `import()` AST node via `t.CallExpression`. The `t.ImportExpression` will throw if more than one arguments are passed.
+Note that `@babel/types` does not currently validate the number of arguments when constructing `import()` AST nodes via `t.CallExpression`. The `t.ImportExpression` will throw if more than one arguments are passed.
 
 
 ## `module-attributes` proposal support
