@@ -1,6 +1,6 @@
 - Repo: `babel/babel`
 - Start Date: 2020-05-01
-- RFC PR: <!-- leave this empty, to be filled in later -->
+- RFC PR: https://github.com/babel/rfcs/pull/4
 - Related Issues: https://github.com/babel/babel/pull/10962
 - Authors: @JLHwung
 - Champion: @JLHwung
