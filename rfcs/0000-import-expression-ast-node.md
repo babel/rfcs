@@ -98,7 +98,7 @@ export default {
 
 A plugin can also support both Babel 7 and Babel 8 by checking if `ImportExpression` exists in `@babel/types`.
 ```js
-export default function(api, { types: t }) {
+export default function({ types: t }) {
   let visitor = {};  
   if (t.ImportExpression) {
     // Babel 8
