@@ -14,7 +14,8 @@ This RFC proposes to change the AST shape of dynamic import `import(moduleName)`
 
 Currently dynamic import is parsed as a `CallExpression`, whose `callee` is a pseudo expression node `Import`. For example, here is the parsed AST of `import("foo")`.
 
-```json
+```jsonc
+// import("foo")
 {
   "type": "CallExpression",
   "callee": {
@@ -29,7 +30,7 @@ Currently dynamic import is parsed as a `CallExpression`, whose `callee` is a ps
 }
 ```
 
-It encourages an incorrect mental model, as developers may think of `import()` as a function call. It is also problematic when we extend the current AST shape to support stage-1 [module attributes](https://github.com/tc39/proposal-module-attributes) (`import(moduleName, attributes)`) since the arguments (`moduleName` and `attributes` respectively) share the same semantics in the AST.
+When `@babel/parser` [supported](https://github.com/babel/babylon/pull/163) dynamic import, it was called `import-function` and shared similar syntax structure with `super` call that is parsed as `CallExpression[callee=Super]`. However, it encourages an incorrect mental model, as developers may think of `import()` as a function call. Besides, it was later syntactically limited to one argument, different from other call expressions. Last, it is also problematic when we extend the current AST shape to support stage-1 [module attributes](https://github.com/tc39/proposal-module-attributes) (`import(moduleName, attributes)`) since the arguments (`moduleName` and `attributes` respectively) share the same semantics in the AST.
 
 # Detailed design
 
@@ -44,7 +45,8 @@ interface ImportExpression <: Expression {
 
 The example above will now be parsed as
 
-```json
+```jsonc
+// import("foo")
 {
   "type": "ImportExpression",
   "source": {
@@ -63,6 +65,16 @@ interface CallExpression <: Expression {
 - callee: Expression | Super | Import
 + callee: Expression | Super
 }
+```
+
+## Revision on the `Import` node constructor
+
+The `Import` node consturctor `t.Import()` will be rendered useless since `Import` is only used as a `callee` type. However, to help new AST adoption, we will preserve `t.Import()` but throws a better message
+
+```js
+t.Import()
+// throws 
+// `t.ImportExpression` should be used when constructing dynamic import `import(moduleName)`
 ```
 
 ## Matching `import()`
@@ -149,11 +161,37 @@ Note that `@babel/types` does not currently validate the number of arguments whe
 
 On top of this RFC, we can add an extra `attributes` property in `ImportExpression` to support the [Module Attributes](https://github.com/tc39/proposal-module-attributes) Proposal.
 
-```js
+```ts
 interface ImportExpression <: Expression {
   type: "ImportExpression";
   source: Expression;
   attributes: Expression | null;
+}
+```
+
+Here is an example.
+```jsonc
+// import("foo", { type: "json" })
+{
+  "type": "ImportExpression",
+  "source": {
+    "type": "StringLiteral",
+    "value": "foo"
+  },
+  "attributes": {
+    "type": "ObjectExpression",
+    "properties": [{
+      "type": "ObjectProperty",
+      "key": {
+        "type": "Identifier",
+        "name": "type"
+      },
+      "value": {
+        "type": "StringLiteral",
+        "value": "json"
+      }
+    }]
+  }
 }
 ```
 
@@ -186,7 +224,7 @@ We can stay with the current situation and use `arguments[1]` to capture module 
 
 We can ship this AST change behind a `BABEL_PARSER_8_BREAKING` environment flag in 7.x and encourage downstream projects to test against this feature. In Babel 8 we will opt-in to this change and remove this flag.
 
-In `@babel/types` we can preserve the (now) unused `t.Import` constructor in Babel 8 and instruct the user: "`t.ImportExpression` should be used when constructing `import()`". 
+`t.Import()` will be preserved but it will throw a better message. (See "Detailed Design" above)
 
 Both @devongovett (`parcel`) and @ljharb (`babel-plugin-dynamic-import-node`) have expressed positive feedback to this proposal. (If you know anyone who is interested at this change, please comment and I will reach out)
 
