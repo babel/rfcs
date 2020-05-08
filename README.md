@@ -1,5 +1,7 @@
 # Babel RFCs
 
+> [Open RFC List](https://github.com/babel/rfcs/pulls)
+
 Many changes, including bug fixes and documentation improvements, can be
 implemented and reviewed via the normal GitHub pull request workflow.
 
