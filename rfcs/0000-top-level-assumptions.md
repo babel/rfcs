@@ -310,11 +310,6 @@ foo?.bar;
     in this section.
 -->
 
-<!--
+
 ## Related Discussions
-
-    This section is optional but suggested.
-
-    If there is an issue, pull request, or other URL that provides useful
-    context for this proposal, please include those links here.
--->
+- [2020-04-02 notes](https://github.com/babel/notes/blob/e4699d49a119877c622255bde259d4dfb84c0d0e/2020/04-02.md)
