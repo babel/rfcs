@@ -14,9 +14,9 @@ Many of our plugins have a `loose` option, which enables the compiler to make so
 
 The `loose` option has been around since `6to5`: at first as a top level option, and then it was split into each plugin as a catch all for anything that we wanted to be less spec compliant.
 
-However, `loose` has some problems: namely that the term itself is not clear what it means, and _should_ be more related to a part of the language rather than to the plugin that it's compiling it (see the "Motivation" section for more details). A lot of this behavior is documented with a single example, so in the future we’ll want to be specific with the assumptions themselves and maybe provide a set of tests/codesandboxes explaining differences.
+However, `loose` has some problems: namely the term itself is not really descriptive at all and _should_ be named after the part of the language it affects rather than the plugin that's compiling it (see the "Motivation" section for more details). A lot of this behavior is documented with a single example, so in the future we’ll want to be specific with the assumptions themselves and maybe provide a set of tests/codesandboxes explaining the differences.
 
-This RFC proposes introducing a new *top-level* option, `"assumptions"`, which is an object containing different flags which can simplify the output code.
+This RFC proposes introducing a new *top-level* option, `"assumptions"`, which is an object containing different flags that can simplify the code that Babel generates.
 These flags have two characteristics:
 - They specify _something_ about a specific language feature, and not about a specific Babel plugin.
 - Different flags can toggle different unrelated optimizations in the same plugin, instead of toggling both of them with a single generic `"loose"` option.
@@ -94,7 +94,7 @@ for (let i = 0; i < arr.length; i++) {
 # Motivation
 
 The `loose` options have different problems:
-- _"What is loose?"_ It's not always clear what assumptions `loose` makes. You always have to check in the docs, end even the docs often only partially mention what `loose` means in that specific context.
+- _"What is loose?"_ Since `loose` is not descriptive, it requires users to check a plugin's docs to see what assumptions it makes (and the docs often only partially mention what `loose` means in a specific context).
 - _"How loose is loose?"_ Is making `loose` "looser" a breaking change? We have been considering it as such: for this reason, we have been introducing different `loose`-like options in some plugins. For example, `transform-for-of` supports `loose`, `assumeArray` and `allowArrayLike`.
 - There are cross-dependencies between the `loose` option of different plugins: for example, `proposal-class-properties`'s loose mode must always match `proposal-private-methods`'s (otherwise we throw an error). This has already caused problems: [babel/babel#11622](https://github.com/babel/babel/issues/11622).
 - Some plugins should be aware of other plugins' `loose` option value. For example, we sometimes need to partially transpile optional chaining in the class properties plugin ([babel/babel#11248](https://github.com/babel/babel/pull/11248)). Should we add a new `optionalChainingLoose` option to `proposal-private-methods` and `proposal-class-properties`? Or should we use a cross-plugin communication channel to share it? What about when someone has the private methods plugin enabled, but not the optional chaining one?
@@ -115,7 +115,7 @@ type Assumptions = {
 };
 ```
 
-This new options should be allowed in the following locations:
+This new option should be allowed in the following locations:
 - In programmatic options passed, for example, to `babel.transform()` or to `babel-loader`.
 - In `babel.config.json` and `.babelrc.json` top-level options.
 - In `overrides` blocks. This is useful, for example, to enable a possible `noDocumentAll` assumption on a folder containing server-side code and not inside one containing client-side code.
@@ -126,7 +126,7 @@ There are two main kinds of presets: framework-specific presets, like `babel-pre
 
 ## Configuration merging
 
-Multiple `"assumptions"` object should be merged using `Object.assign`, instead of by overwriting the object as it happens for other options.
+Multiple `"assumptions"` objects should be merged using `Object.assign`, and not overwritten like other options.
 This makes it easy, for example, to enable one additional assumption for a specific folder. Also, it still keeps the ability of disabling an assumption simply by setting it to `false`.
 
 They should be merged considering the following precedence, which is the same as what is already used for other options:
