@@ -4,7 +4,7 @@
 - Related Issues: 
 - Authors: [@nicolo-ribaudo](https://github.com/nicolo-ribaudo) 
 - Champion: [@nicolo-ribaudo](https://github.com/nicolo-ribaudo) 
-- Implementors: <!-- the names of everyone who will work on the PR. you can leave this empty if you would like someone else to work on it -->
+- Implementors: [@nicolo-ribaudo](https://github.com/nicolo-ribaudo) 
 
 # Summary
 
