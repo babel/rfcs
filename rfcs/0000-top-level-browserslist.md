@@ -126,14 +126,18 @@ This is identical to what we already do when a plugin is enabled multiple times.
 
 `browserslist` shouldn't be called every time we find a `targets` or `browserslistConfigFile` option, but only once after merging all the Babel configuration sources.
 
+## Targets resolution time
+
+The `targets` are resolved after loading and merging all the config files, but before returing from `loadPartialConfig`. This guarantees that the object returned by `loadPartialConfig` doesn't rely on additional configuration files (i.e. `.browserslistrc`) or on environment variables that could affect the result of calling `browserslist()`.
+
 ## Plugins and presets API
 
 The first parameter passed to plugins and presets (usually named `babel`, or `api`) already exposes different APIs from `@babel/core` to the plugins/presets. [source](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/full.js#L225-L228).
 
-We can add a `targets` property to that object containing the _resolved_ targets. For example, if the user specifies `targets: ">2%"` in their configuration, a plugin would receive a `targets` object similar to this one:
+We can add a `targets` **method** to that object containing the _resolved_ targets. For example, if the user specifies `targets: ">2%"` in their configuration, a plugin would receive a `targets` object similar to this one:
 
 ```js
-api.targets = {
+api.targets() == {
   chrome: "80.0.0",
   ios: "13.3.0",
   safari: "13.0.0",
@@ -141,7 +145,11 @@ api.targets = {
 }
 ```
 
-The current implementation, uses the [`makeAPI` function](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/helpers/config-api.js#L28) to build both the [`plugin API`](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/full.js#L227) and the [`config API`](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/files/configuration.js#L206). They also share [the same Flow type](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/helpers/config-api.js#L20-L26), even if it's called `PluginApi`.
+`api.targets()` must to be a function because, similarly to `api.env()` and `api.caller()`, it affects plugins and presets caching: `@babel/core` needs to know when a plugin/preset relies on `targets` so that when they change it can properly invalidate the cache and re-instantiate such plugin/preset.
+
+### Internal implementation details
+
+The current implementation uses the [`makeAPI` function](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/helpers/config-api.js#L28) to build both the [`plugin API`](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/full.js#L227) and the [`config API`](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/files/configuration.js#L206). They also share [the same Flow type](https://github.com/babel/babel/blob/83d365acb60db2943279cb6f3914c55f52b5702d/packages/babel-core/src/config/helpers/config-api.js#L20-L26), even if it's called `PluginApi`.
 
 Since `targets` is resolved _after_ loading the config files, we can only pass it to the plugins and presets. We should split the `makeAPI` function in `makePluginAPI` and `makeConfigAPI`, and we should add a `ConfigApi` Flow type. Since this is an internal file, it won't be a breaking change.
 
@@ -165,14 +173,14 @@ Since `targets` is resolved _after_ loading the config files, we can only pass i
   export default {
     targets: [">2%"],
     presets: [
-      withTargets("@babel/preset-env", { chrome: 42 })
+      withTargets("@babel/preset-env", { chrome: "42.0.0" })
     ]
   };
 
   function withTargets(pkg, targets) {
     const fn = require(pkg).default;
     return (api, options, dirname) =>
-      fn({ __proto__: api, targets }, options, dirname);
+      fn({ __proto__: api, targets: () => targets }, options, dirname);
   }
   ``` 
 
