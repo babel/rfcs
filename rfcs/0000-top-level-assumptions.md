@@ -131,7 +131,7 @@ This makes it easy, for example, to enable one additional assumption for a speci
 
 They should be merged considering the following precedence, which is the same as what is already used for other options:
 - preset &lt; `babel.config.json` &lt; `.babelrc.json` (far from the compiled file)&lt; `.babelrc.json` (near to the compiled file) &lt; programmatic options
-- top-level &lt; `env` section &lt; `overrides`
+- top-level &lt; `env` section &lt; `overrides` &lt; `overrides.env`
 
 Assumptions set inside a preset are not boxed inside the preset but are applied to all the plugins, for two reasons:
 1. conceptually, the assumptions describe the input file and not a specific plugin enabled inside the preset;
