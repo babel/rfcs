@@ -113,18 +113,39 @@ Even if we are removing Browserslist's `path` option from our options, we should
 
 The new `browserslistEnv` option of `@babel/preset-env` is the [`env` option](https://github.com/browserslist/browserslist#js-api) of Browserslist. I think we should move it as-is to `@babel/core`'s options.
 
-## Allowed options placements and conflicts resolution
+## Allowed options placements and merging
 
-These three new options should be allowed at least in the programmatic options, in `babel.config.*` files and in `.babelrc.*` files.
+These three new options are be allowed in the programmatic options, in `babel.config.*` files and in `.babelrc.*` files.
 
-If Browserslist options are specified multiple times, the most relevant one should completely overwrite the previous one. This is because it's not clear if we should merge or intersect the resulting engines sets.
+If Browserslist options are specified multiple times, the most relevant one should completely overwrite the previous one. This makes sure that both the following examples have the expected behavior:
+```jsonc
+{
+  "targets": "> ie 10",
+  "presets": ["@babel/env"],
+  
+  "env": {
+    "modern": { "targets": "supports es6-module" }
+  }
+}
+
+{
+  "targets": "supports es6-module",
+  "presets": ["@babel/env"],
+  
+  "env": {
+    "legacy": { "targets": "> ie 10" }
+  }
+}
+```
+
+If we choosed to merge `targets` by computing the _union_ of the specified targets, then the first example would be resolved to `{ "ie": "10" }` also when `BABEL_ENV=modern`. If we instead choosed to merge them by computing the _intersection_, then the second example would be resolved to the equivalent of `supports es6-module` even when `BABEL_ENV=legacy`.
 
 We should use this precedence, where "a > b" means that the option specified in a overwrites the option specified in b:
 - Programmatic options > close `.babelrc.*` > distant `.babelrc.*` > `babel.config.js`
 
 This is identical to what we already do when a plugin is enabled multiple times.
 
-`browserslist` shouldn't be called every time we find a `targets` or `browserslistConfigFile` option, but only once after merging all the Babel configuration sources.
+`browserslist()` shouldn't be called every time we find a `targets` or `browserslistConfigFile` option, but only once after merging all the Babel configuration sources.
 
 ## Targets resolution time
 
