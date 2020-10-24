@@ -166,7 +166,7 @@ api.targets() == {
 }
 ```
 
-`api.targets()` must to be a function because, similarly to `api.env()` and `api.caller()`, it affects plugins and presets caching: `@babel/core` needs to know when a plugin/preset relies on `targets` so that when they change it can properly invalidate the cache and re-instantiate such plugin/preset.
+`api.targets()` must be a function because, similarly to `api.env()` and `api.caller()`, it affects plugins and presets caching: `@babel/core` needs to know when a plugin/preset relies on `targets` so that when they change it can properly invalidate the cache and re-instantiate such plugin/preset.
 
 ### Internal implementation details
 
