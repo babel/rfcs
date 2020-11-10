@@ -274,6 +274,21 @@ When we will finally remove the options from `@babel/preset-env`, if they are st
     in this section.
 -->
 
+## Possible follow-ups
+
+- (ht [**@developit**](https://github.com/developit)) We might give access to `@babel/compat-data` to plugins through `@babel/core`, possibly with an API similar to this one:
+  ```js
+  function plugin(api) {
+    if (api.targets.supports("proposal-optional-chaining")) {
+      /* ... */
+    }
+  }
+  ```
+  This should be kept as a possible future RFC because we first need to know:
+  - If this would be actually useful
+  - What kind of relational operators we need between the config targets and a feature's support data (&ge; and &lt;? However the order isn't always well defined)
+  - How does it interact with bugfix-style plugins, that change the resulting targets
+
 ## Related Discussions
 
 - [babel/babel#10008](https://github.com/babel/babel/issues/10008), where the "top-level targets" idea first came out.
