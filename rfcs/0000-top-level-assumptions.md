@@ -257,7 +257,7 @@ foo?.bar;
       disable it in your config.
     `);
   }
-  reutrn _tmp
+  return _tmp;
 })?.bar
 ```
 
