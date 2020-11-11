@@ -79,10 +79,11 @@ if (isIdentifier(node)) {
 
 ```
 
-The todays system has two shortcomings:
+The todays system has three shortcomings:
 
 * Exporting the node types as `class`es is semantically incorrect. `@babel/types` does not implement the node types as `class`es nor does it export any value for each type. Declaring the node types as `class`es might misguide users to check for a certain node type using `node instanceof Identifier` or to create a new node by calling the constructor `new Identifier()`.
-* Flow only supports `%checks` refinements on function declarations and that only if the function isn't called as a method. For example, `isIdentifier(node)` is supported but `t.isIdentifier(node)` (method invocation) or `path.isIdentifier()` are not. Having to import each `is*` function is cumbersome and declaring the `is*` methods on `path` isn't possible with what Flow supports today.
+* Flow only supports `%checks` refinements on function declarations and only if the function isn't called as a method. For example, `isIdentifier(node)` is supported but `t.isIdentifier(node)` (method invocation) or `path.isIdentifier()` are not. That means that it's required today to import all `is*` functions to refine a type and refining a `path` isn't supported at all.
+* The `is*` refinement of patterns isn't working with the existing type definitions.
 
 
 # Detailed design
@@ -90,7 +91,7 @@ The todays system has two shortcomings:
 The proposal of this RFC is to change today's typing to:
 
 * Use exact types instead of `class`es to make it clear that `@babel/types` does not export values for node types.
-* Use a union type for `BabelNode` rather than a base class. This allows to refine on node types using `node.type === 'Identifier'` or paths `path.node.type === 'Identifier'`.
+* Use a union type for `BabelNode` rather than a base class. This enables users to refine on node types using `node.type === 'Identifier'`, `path.node.type === 'Identifier'` for paths or use the `is*` methods. Using a union type further allows to refine on patterns, e.g. by using `isLiteral(node)`.
 * Change the `%checks` on the `is*` function declarations from `node instanceof XNode` to `node != null && node.type === 'X'`
 
 Example Usage:
@@ -134,9 +135,9 @@ This changes can be implemented by changing the type definition generation scrip
 
 The drawbacks are:
 
-* Having to import the `is*` methods for type refinement to work
-* Defining the node types as classes is misguiding for users that the node types are modelled as values (classes) when they're not
-* Type refinements on `path` using `is*` or `path.type === 'Identifier'` are not supported.
+* Having to import the `is*` methods for type refinement to work and there's no alternative way to refine nodes.
+* Defining the node types as `class`es is misguiding for users that the node types are modelled as values (`class`es) when they're not
+* There's no way to refine a `path` because Flow doesn't support the refinement of the `path.isX` methods and refining on `path.node.type` isn't sufficient because `node` isn't defined as a union.
 
 ## Inexact vs Exact Types
 
