@@ -99,7 +99,7 @@ Example Usage:
 ```js
 import * as t from '@babel/types';
 import type { StringLiteral, NumericLiteral } from '@babel/types';
-import { isStringLiteral } from '@babel/types`;
+import { isStringLiteral } from '@babel/types';
 
 function asStringLiteral(ast: ?StringLiteral | NumericLiteral): StringLiteral | null {
   if (ast == null) {
