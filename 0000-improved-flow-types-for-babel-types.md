@@ -1,18 +1,18 @@
 - Repo: `babel/types`
 - Start Date: 2020-10-02
-- RFC PR: <!-- leave this empty, to be filled in later -->
+- RFC PR: [babel/babel#12135](https://github.com/babel/babel/pull/12135)
 - Related Issues: <!-- if relevant -->
 - Authors: Micha Reiser
-- Champion:
+- Champion: Nicolò Ribaudo
 - Implementors: Micha Reiser
 
 # Summary
 
-Create a more precise type definition of `babel/types` for Flow with better type refinement support by declaring the node types as `type`s instead of classes and `BabelNode` as a union type.
+Create a more precise type definition of `@babel/types` for Flow with better type refinement support by declaring the node types as `type`s instead of classes and `BabelNode` as a union type.
 
 # Basic example
 
-```
+```ts
 declare type BabelNodeIdentifier = {|
   leadingComments?: Array<BabelNodeComment>;
   innerComments?: Array<BabelNodeComment>;
@@ -47,11 +47,11 @@ declare type BabelNode = BabelNodeIdentifier | BabelNodeIfStatement | ...
 
 Nodes can then be refined by the `node.type`
 
-```
+```js
 import * as t from '@babel/types';
-import type {StringLiteral, NumericLiteral} from '@babel/types';
+import type { StringLiteral, NumericLiteral } from '@babel/types';
 
-function asStringLiteral(ast: ?StringLiteral | NumericLiteral): BabelNodeStringLiteral | null {
+function asStringLiteral(ast: ?StringLiteral | NumericLiteral): StringLiteral | null {
   if (ast == null) {
       return t.stringLiteral("null");
   }
@@ -70,8 +70,8 @@ function asStringLiteral(ast: ?StringLiteral | NumericLiteral): BabelNodeStringL
 
 The current flow typing defines each node type as a `class` and specifies type refinements (`%checks (node instanceof MemberExpression)`) for the `is*` methods.
 
-```
-const {isIdentifier = require('@babel/types');
+```js
+const { isIdentifier } = require('@babel/types');
 
 if (isIdentifier(node)) {
   console.log(node.name);
@@ -82,7 +82,7 @@ if (isIdentifier(node)) {
 The todays system has three shortcomings:
 
 * Exporting the node types as `class`es is semantically incorrect. `@babel/types` does not implement the node types as `class`es nor does it export any value for each type. Declaring the node types as `class`es might misguide users to check for a certain node type using `node instanceof Identifier` or to create a new node by calling the constructor `new Identifier()`.
-* Flow only supports `%checks` refinements on function declarations and only if the function isn't called as a method. For example, `isIdentifier(node)` is supported but `t.isIdentifier(node)` (method invocation) or `path.isIdentifier()` are not. That means that it's required today to import all `is*` functions to refine a type and refining a `path` isn't supported at all.
+* As of November 2020 Flow only supports `%checks` refinements on function declarations and only if the function isn't called as a method. For example, `isIdentifier(node)` is supported but `t.isIdentifier(node)` (method invocation) or `path.isIdentifier()` are not. That means that it's required today to import all `is*` functions to refine a type and refining a `path` isn't supported at all.
 * The `is*` refinement of patterns isn't working with the existing type definitions.
 
 
@@ -96,12 +96,12 @@ The proposal of this RFC is to change today's typing to:
 
 Example Usage:
 
-```
+```js
 import * as t from '@babel/types';
-import type {StringLiteral, NumericLiteral} from '@babel/types';
-import {isStringLiteral} from '@babel/types`;
+import type { StringLiteral, NumericLiteral } from '@babel/types';
+import { isStringLiteral } from '@babel/types`;
 
-function asStringLiteral(ast: ?StringLiteral | NumericLiteral): BabelNodeStringLiteral | null {
+function asStringLiteral(ast: ?StringLiteral | NumericLiteral): StringLiteral | null {
   if (ast == null) {
       return t.stringLiteral("null");
   }
@@ -154,7 +154,7 @@ Create a babel plugin that rewrites the `%checks` refinements and changes the im
 ## Export old typing to flow-typed
 
 1. Publish the old flow types on [flow-typed](https://github.com/flow-typed/flow-typed) so that users can ping the version
-2. Update the type definition in `babel/types`.
+2. Update the type definition in `@babel/types`.
 
 There's still disturbance since consumers will have to upgrade at some point if they want to use newly added node types.
 
@@ -171,4 +171,4 @@ I don't believe there's any teaching needed nor any need to re-organize the docu
 
 ## Related Discussions
 
-* [PR](https://github.com/babel/babel/pull/12135)
+* Flow PR adding support for `%checks` on methods: https://github.com/facebook/flow/pull/8525
