@@ -184,11 +184,17 @@ The different `loose` or `loose`-like options we currently have in our plugins m
 4. `?.` also needs to be compiled by the private fields and methods plugins ([babel/babel#11248](https://github.com/babel/babel/pull/11248), but currently there is no way to set it to `loose`
 5. The current default behavior is to consider this assumption as valid, and only produce 100% spec-compliant code when the `spec` option is enabled.
 
+### New assumptions policy
+
+We will only define new assumptions for standard ECMAScript features or for very stable stage 3 proposals (following the same convention we use for `@babel/preset-env`'s `shippedProposals` option).
+
+However, existing assumptions can be used by plugins for proposals in earlier stages of the TC39 process: for example, the `#priv in obj` plugin is likely affected by the same assumptions that affect the class private fields plugin.
+
 # Drawbacks
 
 - This RFC introduces a very big number of new top-level options (19), and makes it relatively cheap to add new ones. Having a big number of options can add more "tooling fatigue" on the shoulders of our users, and it can make it hard for us to properly document them. However, these new options replace 22 existing plugin options, many of which have the same name (`loose`) but different behaviors.
 
-- ([@JLHwung](https://github.com/JLHwung)) Some `assumptions` are only effective in one plugin, but users will have to go through their presets/plugins to see if they have opt-in to this plugins. Let's say there is an assumption in a stage-1 proposal and the users does not know it is no-op for their config, it may inadvertently turn into a long list of `assumptions` and the no-op assumptions can kick in once users upgrades `preset-env` which may includes it once its stage advances.
+- ([@JLHwung](https://github.com/JLHwung)) Some `assumptions` are only effective in one plugin, but users will have to go through their presets/plugins to see if they have opt-in to this plugins.
 
 # Alternatives
 
