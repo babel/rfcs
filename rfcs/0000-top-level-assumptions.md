@@ -1,4 +1,4 @@
-# RFC: Loose
+# RFC: Replace "loose" options with a top-level "assumptions" object
 
 - Repo: [`babel/babel`](https://github.com/babel/babel)
 - Start Date: 2020-06-08
