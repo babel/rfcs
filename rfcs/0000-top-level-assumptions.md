@@ -146,7 +146,7 @@ This is implemented by [babel/babel#11689](https://github.com/babel/babel/pull/1
 
 ## Plugin API
 
-The first parameter passed to the plugins (often known as `api`) should have a new method: `assumptions(name: string): boolean | undefined`, which returns `true` if the assumption has been enabled, `false` if it has been explicitly disabled, or `undefined` if it hasn't been set. We need to differentiate between `false` and `undefined` so that the arrow-function transform can default to `true` for `newableArrowFunctions`, but we may revisit this in Babel 8.
+The first parameter passed to the plugins (often known as `api`) should have a new method: `assumptions(name: string): boolean`, which returns whether or not the assumption has been enabled. If a plugin is asking about an assumption not supported by the used `@babel/core` version, it will return `false`.
 
 This is implemented as a function and not as an object whose properties reflect the assumptions because it configures the plugins' caching (they are reinstantiated when an assumption they use changes).
 
