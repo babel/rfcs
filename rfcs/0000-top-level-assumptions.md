@@ -54,6 +54,7 @@ for (let i = 0; i < arr.length; i++) {
   el.logger == null ? void 0 : el.logger.log("Ok!");
 }
 ```
+
 </details>
 <br />
 
@@ -89,6 +90,7 @@ for (let i = 0; i < arr.length; i++) {
   el.logger === null || el.logger === void 0 ? void 0 : el.logger.log("Ok!");
 }
 ```
+
 </details>
 
 # Motivation
