@@ -2,11 +2,11 @@
 
 - Repo: [`babel/babel`](https://github.com/babel/babel)
 - Start Date: 2020-06-08
-- RFC PR: <!-- leave this empty, to be filled in later -->
+- RFC PR: [babel/babel#12219](https://github.com/babel/babel/pull/12219)
 - Related Issues: <!-- if relevant -->
 - Authors: Nicolò Ribaudo
 - Champion: Nicolò Ribaudo
-- Implementors: <!-- the names of everyone who will work on the PR. you can leave this empty if you would like someone else to work on it -->
+- Implementors: Nicolò Ribaudo
 
 # Summary
 
@@ -124,6 +124,8 @@ This new option should be allowed in the following locations:
 Additionally, `"assumptions"` should also be allowed inside presets.
 There are two main kinds of presets: framework-specific presets, like `babel-preset-react-app`, and company-wide presets, used to share the same plugins accross different projects. Since assumptions describe the input code and not the used plugins, this new option fits better in company-wide presets where the person writing the preset and the person writing the input code have less "degrees of separation", but there are also use cases in framework-specific presets: for example, `babel-preset-react-app` [enables](https://github.com/facebook/create-react-app/blob/c87ab79559e98a5dae2cd0b02477c38ff6113e6a/packages/babel-preset-react-app/create.js#L151-L154) `loose: true` for `@babel/plugin-proposal-class-properties`.
 
+To avoid conflicts between assumptions set in presets, they will only be able to _enable_ them (i.e. set them to `true`). The only way to disable an already enabled assumption is to explicitly do it in a configuration file or in programmatic options. ([discussion](https://github.com/babel/rfcs/pull/5#discussion_r507979771))
+
 ## Configuration merging
 
 Multiple `"assumptions"` objects should be merged using `Object.assign`, and not overwritten like other options.
@@ -137,12 +139,14 @@ Assumptions set inside a preset are not boxed inside the preset but are applied 
 1. conceptually, the assumptions describe the input file and not a specific plugin enabled inside the preset;
 2. practically, this makes it possible to have a single "personal" or "company" preset containing assumptions which apply to a user's coding practices, and re-use it in different projects without duplicating the list of assumptions.
 
-In order to "leak" assumptions defined inside presets, we need to first resolve and instantiate all the presets, and then all the plugins with the resolved assumptions ([babel/babel#11689](https://github.com/babel/babel/pull/11689)). Currently, presets and plugins are instantiated in mixed order.
-This also means that we cannot provide the defined assumptions list to the presets, because it hasn't been finalized yet when they are instantiated.
+In order to expose assumptions defined inside presets to every plugin, we need to first resolve and instantiate all the presets, and then all the plugins with the resolved assumptions. This also means that we cannot provide the defined assumptions list to the presets, because it hasn't been finalized yet when they are instantiated.
+This is implemented by [babel/babel#11689](https://github.com/babel/babel/pull/11689)).
 
 ## Plugin API
 
-The first parameter passed to the plugins (often known as `api`) should have a new property: `assumptions`, which is a frozen copy of the resolved assumptions object.
+The first parameter passed to the plugins (often known as `api`) should have a new method: `assumptions(name: string): boolean | undefined`, which returns `true` if the assumption has been enabled, `false` if it has been explicitly disabled, or `undefined` if it hasn't been set. We need to differentiate between `false` and `undefined` so that the arrow-function transform can default to `true` for `newableArrowFunctions`, but we may revisit this in Babel 8.
+
+This is implemented as a function and not as an object whose properties reflect the assumptions because it configures the plugins' caching (they are reinstantiated when an assumption they use changes).
 
 ## Assumptions list
 
