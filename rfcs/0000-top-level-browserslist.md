@@ -1,7 +1,7 @@
 - Repo: `babel/babel`
 - Start Date: 2020-04-25
-- RFC PR: <!-- leave this empty, to be filled in later -->
-- Related Issues: 
+- RFC PR: [babel/babel#12189](https://github.com/babel/babel/pull/12189)
+- Related Issues: [babel/babel#8809](https://github.com/babel/babel/pull/8809), [babel/babel#10008](https://github.com/babel/babel/issues/10008)
 - Authors: [@nicolo-ribaudo](https://github.com/nicolo-ribaudo) 
 - Champion: [@nicolo-ribaudo](https://github.com/nicolo-ribaudo) 
 - Implementors: [@nicolo-ribaudo](https://github.com/nicolo-ribaudo) 
@@ -75,9 +75,20 @@ Moving `targets` to the top-level options can also be useful for:
 
 The `targets` option of `@babel/preset-env` can be used in different ways:
 1. As a string ar as an array of strings, to specify a Browserslist query
-2. As an object mapping engine names to their target versions. This map can also contain `node: "current"`, to target the Node.js version the users is running Babel with; `esmodules: true`, which is expanded to [the browsers with native support for ECMAScript modules](https://github.com/babel/babel/blob/master/packages/babel-compat-data/data/native-modules.json); `browsers: string | Array<string>`, which can specify a Browserslist query; `uglify: true`, which forces `@babel/preset-env` to compile everything.
+2. As an object mapping engine names to their target versions. This map can also contain `node: "current"`, to target the Node.js version the users is running Babel with; `esmodules: true`, which is expanded to [the browsers with native support for ECMAScript modules](https://github.com/babel/babel/blob/master/packages/babel-compat-data/data/native-modules.json) and replaces the other targets; `browsers: string | Array<string>`, which can specify a Browserslist query; `uglify: true`, which forces `@babel/preset-env` to compile everything.
 
-We should move this option to `@babel/core` without limiting any of its current capabilities, except for `targets.uglify`. It has been deprecated since `babel-preset-env` 2.0, for two reasons: if you want to force all the possible syntax transforms regardless of your targets you can use `@babel/preset-env`'s `forceAllTransform` option, or you can dynamically set your `targets` correctly so that the option reflects what you need.
+We should move this option to `@babel/core` without limiting any of its current capabilities, with the following differences: except for `targets.uglify`.
+
+#### `targets.uglify`
+
+This option shouldn't be ported to `@babel/core`. It has been deprecated since `babel-preset-env` 2.0, for two reasons: if you want to force all the possible syntax transforms regardless of your targets you canuse `@babel/preset-env`'s `forceAllTransform` option, or you can dynamically set your `targets` correctly so that the option reflects what you need.
+
+#### `targets.esmodules`
+
+In `@babel/preset-env` this option completely replaces the other targets: `{ targets: "chrome 40, firefox 70", "esmodules": true }` is resolved to `{ chrome: 61, firefox: 60 }`.
+This behavior was a good idea when only recent version of browsers had support for native ECMAScript modules, thus `"esmodules": true` always lifted up the supported targets. However, it now happens that the specified targets are partially more recent than the browsers with native ECMAScript modules support: in this case `"esmodules": true` is unexpectedly causing more features to be compiled.
+
+`@babel/core`'s `targets.esmodules` option will instead always list up the resolved targets, by intersecting the existing targets: `{ targets: "chrome 40, firefox 70", "esmodules": true }` is resolved to `{ chrome: 61, firefox: 70 }`.
 
 ### `browserslistConfigFile`
 
@@ -261,8 +272,11 @@ When we will finally remove the options from `@babel/preset-env`, if they are st
 # Open questions
 
 1. Should `.browserslistrc` files be considered as project-wide or file-relative configs?
+   [**ANSWER**](https://github.com/babel/rfcs/pull/2#issuecomment-619573888): They are file-relative config files.
 2. Is the "Merge the new options in a single object" better than having three new top-level options?
+   **ANSWER**: No, most configs will use at most one of these options anyway. 
 3. Should we also move the `forceAllTransform` option to `@babel/core`?
+   **ANSWER**: No, it's an option speficially for syntax transforms, necessary to feed Babel's output into tools that only support ES5 syntax.
 
 <!-- ## Frequently Asked Questions -->
 
