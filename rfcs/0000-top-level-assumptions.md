@@ -28,7 +28,7 @@ These flags have two characteristics:
 {
   "assumptions": {
     "noDocumentAll": true,
-    "noGetterSideEffects": true,
+    "pureGetters": true,
     "iterableIsArray": true
   },
   "presets": ["@babel/preset-env"]
@@ -63,7 +63,7 @@ for (let i = 0; i < arr.length; i++) {
 {
   "assumptions": {
     "noDocumentAll": false,
-    "noGetterSideEffects": true,
+    "pureGetters": true,
     "iterableIsArray": true
   },
   "presets": ["@babel/preset-env"]
