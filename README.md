@@ -64,6 +64,6 @@ If you are interested in working on the implementation for an 'active' RFC, but 
 
 We try to make sure that any RFC that we accept is discussed at a team meeting. Every accepted feature should have a core team champion, who will represent the feature and its progress.
 
-An RFC is considered as accepted if it receives at least 4 approving reviews, and no rejection from core team members. If the RFC is proposed by a core team member, this number is lowered to 3.
+An RFC is considered as accepted if it receives at least 3 approving reviews, and no rejection from core team members. If the RFC is proposed by a core team member, this number is lowered to 2.
 
 **Thanks to the [ESLint](https://github.com/eslint/rfcs) and [React](https://github.com/reactjs/rfcs) RFC process for inspiration.**
