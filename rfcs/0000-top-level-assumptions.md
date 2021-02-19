@@ -196,7 +196,7 @@ However, existing assumptions can be used by plugins for proposals in earlier st
 
 # Drawbacks
 
-- This RFC introduces a very big number of new top-level options (19), and makes it relatively cheap to add new ones. Having a big number of options can add more "tooling fatigue" on the shoulders of our users, and it can make it hard for us to properly document them. However, these new options replace 22 existing plugin options, many of which have the same name (`loose`) but different behaviors.
+- This RFC introduces a very big number of new top-level options (20), and makes it relatively cheap to add new ones. Having a big number of options can add more "tooling fatigue" on the shoulders of our users, and it can make it hard for us to properly document them. However, these new options replace 22 existing plugin options, many of which have the same name (`loose`) but different behaviors.
 
 - ([@JLHwung](https://github.com/JLHwung)) Some `assumptions` are only effective in one plugin, but users will have to go through their presets/plugins to see if they have opt-in to this plugins.
 
@@ -298,9 +298,9 @@ foo?.bar;
 
 # Open questions
 
-- Should we try to pass to the presets at least a _partial_ `assumptions` object? Currently `@babel/preset-env` relies on `loose` to enable/disable the `typeof-symbol` plugin.
-- Should we validate the list of `assumptions` in `@babel/core`, and disallow unknown ones? This would make it impossible for third-party plugins to introduce their own assumptions, but it also means that it's easier for us to introduce new assumptions without risking ecosystem incompatibilities.
-- Should assumptions always default to `false`? Currently everything defaults to being spec-compliant, except for the `arrow-functions` plugin which has a `spec: true` option as an opt-in.
+- Should we try to pass to the presets at least a _partial_ `assumptions` object? Currently `@babel/preset-env` relies on `loose` to enable/disable the `typeof-symbol` plugin. **ANSWER:** No, presets can only _produce_ assumptions and not _consume_ them.
+- Should we validate the list of `assumptions` in `@babel/core`, and disallow unknown ones? This would make it impossible for third-party plugins to introduce their own assumptions, but it also means that it's easier for us to introduce new assumptions without risking ecosystem incompatibilities. **ANSWER:** Yes, the compatibility problems are easily solved checking Babel's version.
+- Should assumptions always default to `false`? Currently everything defaults to being spec-compliant, except for the `arrow-functions` plugin which has a `spec: true` option as an opt-in. **ANSWER:** Yes, we will make `noNewArrows` default to `false` in Babel 8.
 - ([@JLHwung](https://github.com/JLHwung)) Should we further infer `assumptions` from `targets`? i.e. `{ targets: "node 8" }` can imply `{ assumptions: { noDocumentAll: true } }`.
 
 <!--
