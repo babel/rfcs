@@ -7,7 +7,7 @@
 - Authors: Nicolò Ribaudo
 - Champion: Nicolò Ribaudo
 - Implementors: Nicolò Ribaudo
-- Not released yet
+- Released in Babel 7.13.0
 
 # Summary
 
