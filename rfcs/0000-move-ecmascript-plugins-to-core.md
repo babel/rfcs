@@ -53,7 +53,7 @@ export function internalPluginAvailable(name: string): boolean;
 
 ## Monorepo structure
 
-All the plugins for stable ECMAScript features should be moved from the `./packages/babel-plugin-*` folders into `./packages/babel-core/src/transform-plugins/*`.
+All the plugins for stable ECMAScript features should be moved from the `./packages/babel-plugin-*` folders into `./packages/babel-core/src/internal-plugins/*`.
 
 To make it easier to run tests for an individual plugin (currently you can use `yarn jest transform-classes`), we can still keep tests in separate internal workspaces, for example in `/test/core-plugins/[plugin name]`.
 
@@ -61,14 +61,19 @@ To make it easier to run tests for an individual plugin (currently you can use `
 
 When an ECMAScript proposal is promoted from Stage 3 to Stage 4, we should:
 1. Enable it by default in `@babel/parser`
-2. Copy the transform plugin into `@babel/core`
+2. Copy the transform plugin into `@babel/core`, and rename it from `@babel/plugin-proposal-*` to `internal:transform-*`
 3. Enable it by default in `@babel/preset-env`
 4. Archive the `@babel/plugin-syntax-*` syntax plugin
 5. Archive the `@babel/plugin-proposal-*` transform plugin
 
-`@babel/preset-env` should still depend on the archived proposal plugin: since it's a separate package, it could still be used with an older `@babel/core` version that doesn't support the new `internal:*` plugin.
+`@babel/preset-env` will only enable plugins supported by the currently used `@babel/core` version. If a proposal reaches stage 4 for the x.y.z Babel release, `@babel/preset-env` will only enable it when both the `@babel/core` and `@babel/preset-env` versions are at least x.y.z. `@babel/preset-env` will not fallback to the `@babel/plugin-proposal-*` plugin when using older `@babel/core` versions, for multiple reasons:
+- so that it does not need to depend on `-syntax-` plugins for compatibility with older `@babel/parser` versions;
+- to avoid downloading every plugin that reaches Stage 4 twice: once as part of `@babel/core` and once as a dependency of `@babel/preset-env`;
+- to encourage people to use the latest `@babel/core` version.
 
-It can call, for example, `babel.internalPluginAvailable("internal:transform-classes")` to decide whether it should enable the internal plugin or fallback to the old proposal implementation.
+## Bugfix plugins
+
+Bugfix plugins would be subject to the same policy as plugins for whole new features: if they are fixing a bug related to a standard (or stage 4) feature, they should be moved to `@babel/core` named following the `internal:bugfix-[engine name]-[bug description]` pattern.
 
 # Drawbacks
 
@@ -84,39 +89,11 @@ If we discover that the additional bundle size causes problems for other tools d
 ## To the whole RFC
 
 - Keep the current status.
-- Drop SemVer for the `@babel/core` `peerDependency` of plugins, so that we can require an higher `@babel/core` version when needed.
+- Drop SemVer for the `@babel/core` `peerDependency` of plugins, so that we can require an higher `@babel/core` version when needed. Plugins would then be able to require an higher `@bebel/core` version even without waiting for the next major release.
 
 ## To specific parts of the RFC
 
-Instead of the `internalPluginAvailable` function, we could export an `internalPluginName` function with the following signature:
-
-```js
-export function internalPluginName(name: string): string | undefined;
-```
-
-This function takes a plugin name (either internal or external) as the input, and returns the internal plugin name when it's available:
-
-```js
-internalPluginName("internal:transform-classes"); // "internal:transform-classes"
-internalPluginName("@babel/plugin-transform-classes"); // "internal:transform-classes"
-internalPluginName("@babel/plugin-unknown"); // undefined
-```
-
-`@babel/core` can then conditionally enable plugins like this:
-
-```js
-import transformClasses from "@babel/plugin-transform-classes";
-
-// ...
-
-plugins: [
-    babel.internalPluginName("@babel/plugin-transform-classes") ?? transformClasses
-]
-```
-
-by doing so, we could make old `@babel/preset-env` versions aware of new `@babel/core` internal plugins, so that it doesn't accidentally enable an older proposal implementation after that it becomes Stage 4 and is moved to stage 4.
-
-Is it worth the additional complexity? (we would need a list of plugin names mappings in `@babel/core`).
+Instead of the `internalPluginAvailable` function, we can expose an `availableInternalPlugins: ReadonlySet<string>` that `@babel/core` consumers can use to check which plugins are available. This is as simple as `internalPluginAvailable`, with the advantage that it has a standard interface and it also allows iterating over the list of plugin names (is this something that we want to allow? what useages does it unlock?).
 
 # Adoption strategy
 
@@ -129,6 +106,23 @@ If they depend on one of the packages that will be moved to `@babel/core`, they 
 Since this RFC doesn't have a big impact on how to use Babel, documenting the new `internal:` plugin is enough.
 
 In the next major release, we can publish an empty placeholder with a deprecation error for all the plugins moved to `@babel/core`, similarly to what we did with `@babel/preset-es2015@7.0.0`.
+
+Additionally, whenever a proposal reaches Stage 4 and is included in `@babel/core` we can `npm deprecate` the previous `@babel/plugin-proposal-*` package, since it will stop being maintained and people should be encouraged to migrate to the `internal:transform-*` plugin.
+
+# Internal migration strategy
+
+_NOTE: This paragraph assumes that we want to implement this RFC in Babel 7. If we end up doing it for Babel 8.0.0, we won't have the "duplicated code" problem._
+
+When mirating to this new approach, we must keep in mind that we have an hard constraint: `@babel/preset-env` must continue being compatible with every `@babel/core` 7.x.y version, and it must continue to enable at least all the plugins that it's currently enabling. This means that we cannot simply move all the plugins to `@babel/core` and remove them from `@babel/preset-env`'s dependencies.
+
+There are three possible approaches that we can take:
+1. Copy the existing stable plugins into `@babel/core`, but keep the old ones as dependencies of `@babel/preset-env` so that they can be used as a fallback when using an old `@babel/core` version. This leads to an increased combined size of `@babel/core`+`@babel/preset-env`, since all the plugins' code is effectively duplicated. It will be between around 1MB, less than the total `@babel/preset-env` size, because all the polyfill-related plugins and the compatibility data will _not_ be duplicated.
+2. Make `@babel/core` depend on all the existing stable plugins, and re-export them as `internal:transform-*` plugins.
+3. Make `@babel/preset-env` depend on a new `@babel/core` version, so that it can access the plugins even if it's being run by an older `@babel/core` version. We might need an intermediate package between `@babel/preset-env` and it's `@babel/core` dependency, because `@babel/core` is already a _peer_ dependency of `@babel/preset-env`.
+
+Approach (2) and (3) lead to the best size outcome (i.e. it won't change), because package managers will continue to be able to deduplicate the plugins packages. However, we must continue assuming that plugins might be used with old `@babel/core` versions and thus they cannot rely on the advantages mentioned in the "Motivation" section above.
+
+Regardess of the approach that we take, new Stage 4 plugins can be directly moved to `@babel/core`, since `@babel/preset-env` doesn't depend yet on them. Additionally, when releasing Babel 8 we can move all the _existing_ stage 4 plugins to `@babel/core` and remove them from `@babel/preset-env`'s dependencies.
 
 # Open questions
 
