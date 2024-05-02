@@ -222,7 +222,7 @@ We can stay with the current situation and use `arguments[1]` to capture module 
 
 # Adoption strategy
 
-We can ship this AST change behind a `BABEL_PARSER_8_BREAKING` environment flag in 7.x and encourage downstream projects to test against this feature. In Babel 8 we will opt-in to this change and remove this flag.
+We can ship this AST change behind a `createImportExpressions` boolean parser option in 7.x and encourage downstream projects to test against this feature. In Babel 8 we will remove the flag and enable the new behavior by default.
 
 `t.Import()` will be preserved but it will throw a better message. (See "Detailed Design" above)
 
@@ -231,7 +231,7 @@ Both @devongovett (`parcel`) and @ljharb (`babel-plugin-dynamic-import-node`) ha
 
 # How we teach this
 
-We can add migration instructions to the Babel 8 release notes, and also ensure plugin authors add `BABEL_PARSER_8_BREAKING` tests to their Babel 7-supporting versions.
+We can add migration instructions to the Babel 8 release notes, and also ensure plugin authors add `createImportExpressions` tests to their Babel 7-supporting versions.
 
 # Open questions
 
