@@ -1,6 +1,6 @@
 # Format-preserving code printer
 
-- Repo: babel/babel, or starting as its own separate repo
+- Repo: babel/babel
 - Start Date: 2024-05-02
 - RFC PR: <!-- leave this empty, to be filled in later -->
 - Related Issues: <!-- if relevant -->
