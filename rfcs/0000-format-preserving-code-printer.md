@@ -86,9 +86,12 @@ We currently have two options to preserve some formatting in the output code:
 - `retainLines`, that preserves line numbers
 - `retainFunctionParens`, that preserves parentheses around function expressions (because some engines use them as a hint to eagerly compile the function body)
 
-To implement this RFC, we need two new options:
-- `retainParens`, to preserve all parentheses from the input code.
-- `retainColumns`, to preserve the _column_ of the tokens other than their lines.
+To implement this RFC, we would introduce one new option:
+- `preserveFormat`, to preserve line-by-line the format of the original code (where there are no new nodes injected).
+
+`preserveFormat` can be used together with `retainLines`, to make sure that even when there are new nodes injected:
+- all other nodes are in their original location
+- all lines not affected by the new/transformed nodes preserve their formatting
 
 ## Implementation
 
@@ -153,9 +156,9 @@ Once that is done, it'd be good to have examples of how it can be used to refact
     If you plan to implement this on your own, what help would you need from the team?
 -->
 
-**What is the exact interaction between `retainLines` and `retainColumns`?**
+**How to format new injected nodes?**
 
-It would be useful to be able to use `retainColumns` without also having to use `retainLines`, but with it still trying to preserve relative column changes.
+It would be useful to be able to use `preserveFormat` without also having to use `retainLines`, but with it still trying to preserve relative column changes.
 
 For example, given this input code:
 ```js
@@ -177,9 +180,7 @@ let a =
     1 + 2;
 ```
 
-Maybe instead of `retainLines`/`retainColumns` we should have `retainLines`/`preserveFormat`, where for now `preserveFormat` requires `retainLines` (giving the first output) but in the future could work independently (giving the second output). `preserveFormat` would also imply `retainParens`.
-
-What approach is the best?
+I am not sure yet about how such algorithm could work.
 
 **What to do about `<!--` and `-->` comments?**
 
